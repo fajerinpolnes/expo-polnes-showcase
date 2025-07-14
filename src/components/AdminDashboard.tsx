@@ -76,14 +76,16 @@ const AdminDashboard = () => {
       });
       setSubmissions([]);
     } else {
-      // Filter out any submissions without valid profile data and properly type the result
+      // Filter out any submissions without valid profile data
       const validSubmissions = (data || [])
-        .filter((submission): submission is typeof submission & { profiles: { full_name: string; username: string; } } => 
-          submission.profiles !== null && 
-          typeof submission.profiles === 'object' && 
-          'full_name' in submission.profiles &&
-          'username' in submission.profiles
-        ) as ProjectSubmission[];
+        .filter((submission): submission is ProjectSubmission => {
+          return submission.profiles !== null && 
+                 typeof submission.profiles === 'object' && 
+                 'full_name' in submission.profiles &&
+                 'username' in submission.profiles &&
+                 typeof submission.profiles.full_name === 'string' &&
+                 typeof submission.profiles.username === 'string';
+        });
       
       setSubmissions(validSubmissions);
     }
