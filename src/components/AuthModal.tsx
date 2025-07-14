@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { User, Shield, Mail, Lock } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -27,32 +27,45 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
     prodi: "",
     angkatan: ""
   });
-  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+  
+  const { signIn, signUp } = useAuth();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Login Successful",
-      description: "Welcome to Expo Polnes!",
-    });
-    onClose();
+    setLoading(true);
+    
+    const { error } = await signIn(loginData.email, loginData.password);
+    
+    if (!error) {
+      onClose();
+    }
+    setLoading(false);
   };
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (registerData.password !== registerData.confirmPassword) {
-      toast({
-        title: "Error",
-        description: "Passwords do not match",
-        variant: "destructive",
-      });
       return;
     }
-    toast({
-      title: "Registration Successful",
-      description: "Your account has been created successfully!",
-    });
-    onClose();
+    
+    setLoading(true);
+    
+    const userData = {
+      full_name: registerData.fullName,
+      role: registerData.role,
+      study_program: registerData.prodi,
+      nim: registerData.nim,
+      angkatan: registerData.angkatan
+    };
+    
+    const { error } = await signUp(registerData.email, registerData.password, userData);
+    
+    if (!error) {
+      onClose();
+    }
+    setLoading(false);
   };
 
   return (
@@ -108,14 +121,9 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                     </div>
                   </div>
 
-                  <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
+                  <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={loading}>
                     <User className="w-4 h-4 mr-2" />
-                    Login as Student
-                  </Button>
-
-                  <Button type="button" variant="outline" className="w-full border-orange-300 text-orange-600 hover:bg-orange-50">
-                    <Shield className="w-4 h-4 mr-2" />
-                    Login as Admin
+                    {loading ? "Logging in..." : "Login"}
                   </Button>
                 </form>
               </CardContent>
@@ -179,6 +187,7 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                           <SelectItem value="2024">2024</SelectItem>
                           <SelectItem value="2023">2023</SelectItem>
                           <SelectItem value="2022">2022</SelectItem>
+                          <SelectItem value="2021">2021</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -222,8 +231,8 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                     />
                   </div>
 
-                  <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
-                    Create Account
+                  <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={loading}>
+                    {loading ? "Creating Account..." : "Create Account"}
                   </Button>
                 </form>
               </CardContent>

@@ -152,6 +152,57 @@ export type Database = {
         }
         Relationships: []
       }
+      projects_submissions: {
+        Row: {
+          admin_notes: string | null
+          class: string
+          course: string
+          created_at: string
+          document_url: string | null
+          grade: string | null
+          group_class: string
+          id: string
+          lecturer: string
+          program_study: string
+          project_name: string
+          status: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          class: string
+          course: string
+          created_at?: string
+          document_url?: string | null
+          grade?: string | null
+          group_class: string
+          id?: string
+          lecturer: string
+          program_study: string
+          project_name: string
+          status?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          class?: string
+          course?: string
+          created_at?: string
+          document_url?: string | null
+          grade?: string | null
+          group_class?: string
+          id?: string
+          lecturer?: string
+          program_study?: string
+          project_name?: string
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       skills: {
         Row: {
           category: string

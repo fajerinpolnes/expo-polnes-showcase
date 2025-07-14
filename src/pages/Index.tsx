@@ -1,16 +1,32 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Search, Calendar, MapPin, Clock, Users, BookOpen, GraduationCap } from "lucide-react";
+import { Search, Calendar, MapPin, Clock, Users, BookOpen, GraduationCap, LogOut } from "lucide-react";
 import AuthModal from "@/components/AuthModal";
 import ProjectsTable from "@/components/ProjectsTable";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 const Index = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const { user, profile, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleAuthAction = () => {
+    if (user) {
+      navigate('/dashboard');
+    } else {
+      setShowAuthModal(true);
+    }
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
@@ -23,12 +39,36 @@ const Index = () => {
             </div>
             <h1 className="text-xl font-bold text-blue-900">Expo Polnes</h1>
           </div>
-          <Button 
-            onClick={() => setShowAuthModal(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
-          >
-            Login / Register
-          </Button>
+          
+          <div className="flex items-center space-x-2">
+            {user ? (
+              <>
+                <span className="text-sm text-slate-600">
+                  Welcome, {profile?.full_name || user.email}
+                </span>
+                <Button 
+                  onClick={handleAuthAction}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  Dashboard
+                </Button>
+                <Button 
+                  onClick={handleSignOut}
+                  variant="outline"
+                  size="sm"
+                >
+                  <LogOut className="w-4 h-4" />
+                </Button>
+              </>
+            ) : (
+              <Button 
+                onClick={handleAuthAction}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                Login / Register
+              </Button>
+            )}
+          </div>
         </div>
       </header>
 
@@ -78,10 +118,10 @@ const Index = () => {
 
           <Button 
             size="lg" 
-            onClick={() => setShowAuthModal(true)}
+            onClick={handleAuthAction}
             className="bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-700 hover:to-sky-600 text-white px-8 py-3 text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
           >
-            Register Your Project
+            {user ? "Go to Dashboard" : "Register Your Project"}
           </Button>
         </div>
       </section>
