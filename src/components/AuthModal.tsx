@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -13,9 +12,10 @@ import { useAuth } from "@/hooks/useAuth";
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onAdminLogin?: () => void;
 }
 
-const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
+const AuthModal = ({ isOpen, onClose, onAdminLogin }: AuthModalProps) => {
   const [loginData, setLoginData] = useState({ email: "", password: "" });
   const [registerData, setRegisterData] = useState({
     email: "",
@@ -68,6 +68,13 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
     setLoading(false);
   };
 
+  const handleAdminLogin = () => {
+    onClose();
+    if (onAdminLogin) {
+      onAdminLogin();
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md mx-auto">
@@ -78,9 +85,10 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
         </DialogHeader>
 
         <Tabs defaultValue="login" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="login">Login</TabsTrigger>
             <TabsTrigger value="register">Register</TabsTrigger>
+            <TabsTrigger value="admin">Admin</TabsTrigger>
           </TabsList>
 
           <TabsContent value="login">
@@ -235,6 +243,31 @@ const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                     {loading ? "Creating Account..." : "Create Account"}
                   </Button>
                 </form>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="admin">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-center text-lg">Admin Access</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center space-y-4">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-sky-500 rounded-lg flex items-center justify-center mx-auto">
+                    <Shield className="w-8 h-8 text-white" />
+                  </div>
+                  <p className="text-slate-600">
+                    Access the admin dashboard to manage project submissions and user accounts.
+                  </p>
+                  <Button 
+                    onClick={handleAdminLogin}
+                    className="w-full bg-blue-600 hover:bg-blue-700"
+                  >
+                    <Shield className="w-4 h-4 mr-2" />
+                    Admin Login
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

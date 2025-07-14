@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,12 +5,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Search, Calendar, MapPin, Clock, Users, BookOpen, GraduationCap, LogOut } from "lucide-react";
 import AuthModal from "@/components/AuthModal";
+import AdminLogin from "@/components/AdminLogin";
 import ProjectsTable from "@/components/ProjectsTable";
+import AdminDashboard from "@/components/AdminDashboard";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
 const Index = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showAdminLogin, setShowAdminLogin] = useState(false);
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
@@ -27,6 +30,59 @@ const Index = () => {
   const handleSignOut = async () => {
     await signOut();
   };
+
+  const handleAdminLogin = () => {
+    setShowAdminLogin(true);
+  };
+
+  const handleAdminLoginSuccess = () => {
+    setIsAdminLoggedIn(true);
+    setShowAdminLogin(false);
+  };
+
+  const handleAdminLogout = () => {
+    setIsAdminLoggedIn(false);
+  };
+
+  // If admin is logged in, show admin dashboard
+  if (isAdminLoggedIn) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+        {/* Header */}
+        <header className="bg-white/80 backdrop-blur-md border-b border-blue-100 sticky top-0 z-50">
+          <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-sky-500 rounded-lg flex items-center justify-center">
+                <GraduationCap className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-blue-900">Expo Polnes - Admin</h1>
+                <p className="text-sm text-slate-600">Admin Dashboard</p>
+              </div>
+            </div>
+            <Button 
+              onClick={handleAdminLogout}
+              variant="outline"
+              className="flex items-center space-x-2"
+            >
+              <LogOut className="w-4 h-4" />
+              <span>Logout</span>
+            </Button>
+          </div>
+        </header>
+
+        {/* Admin Dashboard Content */}
+        <main className="container mx-auto px-4 py-8">
+          <AdminDashboard />
+        </main>
+      </div>
+    );
+  }
+
+  // If admin login is shown
+  if (showAdminLogin) {
+    return <AdminLogin onLogin={handleAdminLoginSuccess} />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
@@ -61,12 +117,21 @@ const Index = () => {
                 </Button>
               </>
             ) : (
-              <Button 
-                onClick={handleAuthAction}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
-              >
-                Login / Register
-              </Button>
+              <>
+                <Button 
+                  onClick={handleAuthAction}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  Login / Register
+                </Button>
+                <Button 
+                  onClick={handleAdminLogin}
+                  variant="outline"
+                  className="text-blue-600 border-blue-600 hover:bg-blue-50"
+                >
+                  Admin
+                </Button>
+              </>
             )}
           </div>
         </div>
@@ -166,7 +231,11 @@ const Index = () => {
         </div>
       </footer>
 
-      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+      <AuthModal 
+        isOpen={showAuthModal} 
+        onClose={() => setShowAuthModal(false)}
+        onAdminLogin={handleAdminLogin}
+      />
     </div>
   );
 };

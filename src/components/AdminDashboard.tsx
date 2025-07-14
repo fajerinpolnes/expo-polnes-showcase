@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,7 +28,7 @@ interface ProjectSubmission {
   profiles: {
     full_name: string;
     username: string;
-  } | null;
+  };
 }
 
 const AdminDashboard = () => {
@@ -77,16 +78,12 @@ const AdminDashboard = () => {
     } else {
       // Filter out any submissions without valid profile data and properly type the result
       const validSubmissions = (data || [])
-        .filter((submission): submission is any => 
+        .filter((submission): submission is typeof submission & { profiles: { full_name: string; username: string; } } => 
           submission.profiles !== null && 
           typeof submission.profiles === 'object' && 
           'full_name' in submission.profiles &&
           'username' in submission.profiles
-        )
-        .map(submission => ({
-          ...submission,
-          profiles: submission.profiles as { full_name: string; username: string; }
-        })) as ProjectSubmission[];
+        ) as ProjectSubmission[];
       
       setSubmissions(validSubmissions);
     }
@@ -109,7 +106,7 @@ const AdminDashboard = () => {
         sub.project_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         sub.course.toLowerCase().includes(searchTerm.toLowerCase()) ||
         sub.lecturer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (sub.profiles?.full_name && sub.profiles.full_name.toLowerCase().includes(searchTerm.toLowerCase()))
+        sub.profiles.full_name.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -305,7 +302,7 @@ const AdminDashboard = () => {
                   <div className="flex-1">
                     <CardTitle className="text-lg">{submission.project_name}</CardTitle>
                     <div className="mt-2 space-y-1 text-sm text-slate-600">
-                      <p><strong>Student:</strong> {submission.profiles?.full_name || 'Unknown'} ({submission.profiles?.username || 'Unknown'})</p>
+                      <p><strong>Student:</strong> {submission.profiles.full_name} ({submission.profiles.username})</p>
                       <p><strong>Course:</strong> {submission.course}</p>
                       <p><strong>Class:</strong> {submission.class} - {submission.group_class}</p>
                       <p><strong>Lecturer:</strong> {submission.lecturer}</p>
@@ -367,7 +364,7 @@ const AdminDashboard = () => {
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <p><strong>Project:</strong> {selectedSubmission.project_name}</p>
-                  <p><strong>Student:</strong> {selectedSubmission.profiles?.full_name || 'Unknown'}</p>
+                  <p><strong>Student:</strong> {selectedSubmission.profiles.full_name}</p>
                   <p><strong>Course:</strong> {selectedSubmission.course}</p>
                   <p><strong>Class:</strong> {selectedSubmission.class}</p>
                 </div>
