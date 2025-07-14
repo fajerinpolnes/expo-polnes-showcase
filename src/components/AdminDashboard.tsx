@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 
 interface ProjectSubmission {
   id: string;
+  user_id: string;
   project_name: string;
   class: string;
   group_class: string;
@@ -25,6 +25,7 @@ interface ProjectSubmission {
   status: string;
   admin_notes: string | null;
   created_at: string;
+  updated_at: string;
   profiles: {
     full_name: string;
     username: string;
@@ -76,16 +77,39 @@ const AdminDashboard = () => {
       });
       setSubmissions([]);
     } else {
-      // Filter out any submissions without valid profile data
-      const validSubmissions = (data || [])
-        .filter((submission): submission is ProjectSubmission => {
-          return submission.profiles !== null && 
-                 typeof submission.profiles === 'object' && 
-                 'full_name' in submission.profiles &&
-                 'username' in submission.profiles &&
-                 typeof submission.profiles.full_name === 'string' &&
-                 typeof submission.profiles.username === 'string';
-        });
+      // Filter and properly type the submissions with valid profile data
+      const validSubmissions: ProjectSubmission[] = [];
+      
+      (data || []).forEach((submission) => {
+        if (submission.profiles && 
+            typeof submission.profiles === 'object' && 
+            'full_name' in submission.profiles &&
+            'username' in submission.profiles &&
+            typeof submission.profiles.full_name === 'string' &&
+            typeof submission.profiles.username === 'string') {
+          
+          validSubmissions.push({
+            id: submission.id,
+            user_id: submission.user_id,
+            project_name: submission.project_name,
+            class: submission.class,
+            group_class: submission.group_class,
+            course: submission.course,
+            lecturer: submission.lecturer,
+            grade: submission.grade,
+            program_study: submission.program_study,
+            document_url: submission.document_url,
+            status: submission.status,
+            admin_notes: submission.admin_notes,
+            created_at: submission.created_at,
+            updated_at: submission.updated_at,
+            profiles: {
+              full_name: submission.profiles.full_name,
+              username: submission.profiles.username
+            }
+          });
+        }
+      });
       
       setSubmissions(validSubmissions);
     }
