@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -76,13 +75,20 @@ const AdminDashboard = () => {
       });
       setSubmissions([]);
     } else {
-      // Filter out any submissions without valid profile data
-      const validSubmissions = (data || []).filter(submission => 
-        submission.profiles && 
-        typeof submission.profiles === 'object' && 
-        !('error' in submission.profiles)
-      );
-      setSubmissions(validSubmissions as ProjectSubmission[]);
+      // Filter out any submissions without valid profile data and properly type the result
+      const validSubmissions = (data || [])
+        .filter((submission): submission is any => 
+          submission.profiles !== null && 
+          typeof submission.profiles === 'object' && 
+          'full_name' in submission.profiles &&
+          'username' in submission.profiles
+        )
+        .map(submission => ({
+          ...submission,
+          profiles: submission.profiles as { full_name: string; username: string; }
+        })) as ProjectSubmission[];
+      
+      setSubmissions(validSubmissions);
     }
     setLoading(false);
   };
