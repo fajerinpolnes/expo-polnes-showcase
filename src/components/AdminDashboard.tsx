@@ -28,7 +28,7 @@ interface ProjectSubmission {
   profiles: {
     full_name: string;
     username: string;
-  };
+  } | null;
 }
 
 const AdminDashboard = () => {
@@ -60,7 +60,7 @@ const AdminDashboard = () => {
       .from('projects_submissions')
       .select(`
         *,
-        profiles!inner (
+        profiles (
           full_name,
           username
         )
@@ -68,13 +68,21 @@ const AdminDashboard = () => {
       .order('created_at', { ascending: false });
 
     if (error) {
+      console.error('Error fetching submissions:', error);
       toast({
         title: "Error",
         description: "Failed to fetch submissions",
         variant: "destructive",
       });
+      setSubmissions([]);
     } else {
-      setSubmissions(data || []);
+      // Filter out any submissions without valid profile data
+      const validSubmissions = (data || []).filter(submission => 
+        submission.profiles && 
+        typeof submission.profiles === 'object' && 
+        !('error' in submission.profiles)
+      );
+      setSubmissions(validSubmissions as ProjectSubmission[]);
     }
     setLoading(false);
   };
@@ -95,7 +103,7 @@ const AdminDashboard = () => {
         sub.project_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         sub.course.toLowerCase().includes(searchTerm.toLowerCase()) ||
         sub.lecturer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        sub.profiles.full_name.toLowerCase().includes(searchTerm.toLowerCase())
+        (sub.profiles?.full_name && sub.profiles.full_name.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
 
@@ -291,7 +299,7 @@ const AdminDashboard = () => {
                   <div className="flex-1">
                     <CardTitle className="text-lg">{submission.project_name}</CardTitle>
                     <div className="mt-2 space-y-1 text-sm text-slate-600">
-                      <p><strong>Student:</strong> {submission.profiles.full_name} ({submission.profiles.username})</p>
+                      <p><strong>Student:</strong> {submission.profiles?.full_name || 'Unknown'} ({submission.profiles?.username || 'Unknown'})</p>
                       <p><strong>Course:</strong> {submission.course}</p>
                       <p><strong>Class:</strong> {submission.class} - {submission.group_class}</p>
                       <p><strong>Lecturer:</strong> {submission.lecturer}</p>
@@ -353,7 +361,7 @@ const AdminDashboard = () => {
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <p><strong>Project:</strong> {selectedSubmission.project_name}</p>
-                  <p><strong>Student:</strong> {selectedSubmission.profiles.full_name}</p>
+                  <p><strong>Student:</strong> {selectedSubmission.profiles?.full_name || 'Unknown'}</p>
                   <p><strong>Course:</strong> {selectedSubmission.course}</p>
                   <p><strong>Class:</strong> {selectedSubmission.class}</p>
                 </div>
