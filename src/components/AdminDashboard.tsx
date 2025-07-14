@@ -81,12 +81,13 @@ const AdminDashboard = () => {
       const validSubmissions: ProjectSubmission[] = [];
       
       (data || []).forEach((submission) => {
-        if (submission.profiles && 
-            typeof submission.profiles === 'object' && 
-            'full_name' in submission.profiles &&
-            'username' in submission.profiles &&
-            typeof submission.profiles.full_name === 'string' &&
-            typeof submission.profiles.username === 'string') {
+        const profiles = submission.profiles;
+        if (profiles && 
+            typeof profiles === 'object' && 
+            'full_name' in profiles &&
+            'username' in profiles &&
+            typeof profiles.full_name === 'string' &&
+            typeof profiles.username === 'string') {
           
           validSubmissions.push({
             id: submission.id,
@@ -104,8 +105,8 @@ const AdminDashboard = () => {
             created_at: submission.created_at,
             updated_at: submission.updated_at,
             profiles: {
-              full_name: submission.profiles.full_name,
-              username: submission.profiles.username
+              full_name: profiles.full_name,
+              username: profiles.username
             }
           });
         }
